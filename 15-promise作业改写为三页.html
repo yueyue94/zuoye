@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html>
+	<head>
+		<meta charset="utf-8">
+		<title></title>
+		<style type="text/css">
+			#list{width: 500px; min-height: 200px; border: 1px dotted pink;}
+		</style>
+	</head>
+	<body>
+		<h2>旅游列表</h2>
+		<ul id="list"></ul>
+		<script type="text/javascript" src="js/jquery.min.js"></script>
+		<script>
+			$(function(){
+				//promise函数
+				function getJson(page){
+					//创建promise对象
+					//resolve 成功的回调函数
+					//reject  失败的回调函数
+					const p = new Promise(function(resolve,reject){
+						//异步获取数据
+						$.getJSON("json/0"+page+".json",function(data){
+							resolve(data);
+						})
+					});
+					return p;
+				}
+				//渲染数据
+				function writeHtml(data){
+					var mydata = data.matchedProducts;
+					for(var i = 0;i<mydata.length;i++){
+						var $li = $(`<li>序号：${mydata[i].collection_num}--标题：${mydata[i].pro_title}</li>`);
+						$('#list').append($li);
+					}
+				}
+				
+				//函数的调用
+				//then里面的两个参数，分别对应 成功的回调resolve和失败的回调reject
+				getJson(1).then(function(data){
+					writeHtml(data);
+					//获取第二页数据
+					return getJson(2);
+				}).then(function(data){
+					writeHtml(data);
+					//获取第三页数据
+					return getJson(3);
+				}).then(function(data){
+					writeHtml(data);
+				}).catch(function(e){
+					console.log("获取数据出错："+e);
+				})
+			})
+			
+			//promise 不仅仅可以解决回调地狱的问题，最重要的是，将渲染数据从 ajax的成功回调函数里
+			//解放出来。可以把渲染数据和获取数据分开；更有利于模块化编程！
+		</script>
+		
+	</body>
+</html>
